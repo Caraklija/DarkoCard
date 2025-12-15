@@ -69,7 +69,7 @@ body {
     font-weight: 900;
     color: #1565c0;
     text-shadow: 6px 6px 0 #bbdefb;
-    z-index: 10;
+    z-index: 20; /* Increased z-index to be above emojis */
     width: 17vw;
     height: 17vw;
     min-width: 150px;
@@ -94,6 +94,8 @@ body {
     
     /* Pulse animation */
     animation: pulse 2s infinite ease-in-out;
+    position: relative;
+    overflow: visible; /* Allow emojis to be visible outside */
 }
 
 @keyframes pulse {
@@ -125,14 +127,19 @@ body {
     filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, 0.2));
     animation: float 6s infinite ease-in-out;
     z-index: 1;
+    /* Position emojis further from the center */
+    transform-origin: center;
 }
 
 @keyframes float {
     0%, 100% {
-        transform: translateY(0) rotate(0deg);
+        transform: translate(0, 0) rotate(0deg) scale(1);
     }
-    50% {
-        transform: translateY(-20px) rotate(10deg);
+    33% {
+        transform: translate(10px, -15px) rotate(5deg) scale(1.1);
+    }
+    66% {
+        transform: translate(-10px, -10px) rotate(-5deg) scale(1.05);
     }
 }
 
