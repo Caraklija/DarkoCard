@@ -16,7 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const letterL = document.getElementById('letterL');
     const soundBtn = document.getElementById('soundBtn');
 
-    // Create floating emojis around the letter L
+    // Get letter L dimensions and position
+    const letterRect = letterL.getBoundingClientRect();
+    const letterSize = Math.min(letterRect.width, letterRect.height);
+    const paddingDistance = letterSize * 0.6; // Distance from letter border
+
+    // Create floating emojis around the letter L (outside the square)
     animals.forEach((animal, index) => {
         // Create floating emojis
         const emoji = document.createElement('div');
@@ -24,17 +29,26 @@ document.addEventListener('DOMContentLoaded', function() {
         emoji.textContent = animal.emoji;
         emoji.style.animationDelay = `${index * 0.7}s`;
         
-        // Position emojis in a circular pattern
+        // Position emojis in a circular pattern OUTSIDE the letter square
         const angle = (index / animals.length) * 2 * Math.PI;
-        const radius = Math.min(window.innerWidth, window.innerHeight) * 0.25;
+        
+        // Calculate positions to be outside the letter square
         const centerX = 50; // percentage
         const centerY = 50; // percentage
         
-        const x = centerX + radius * Math.cos(angle) / window.innerWidth * 100;
-        const y = centerY + radius * Math.sin(angle) / window.innerHeight * 100;
+        // Calculate position with padding distance from the letter
+        const radius = Math.min(window.innerWidth, window.innerHeight) * 0.18; // Smaller radius to keep emojis closer
+        
+        // Position emojis further from center to be outside the letter
+        const distanceMultiplier = 1.8; // Increased to push emojis further out
+        const x = centerX + (radius * distanceMultiplier * Math.cos(angle)) / window.innerWidth * 100;
+        const y = centerY + (radius * distanceMultiplier * Math.sin(angle)) / window.innerHeight * 100;
         
         emoji.style.left = `${x}%`;
         emoji.style.top = `${y}%`;
+        
+        // Add unique animation for each emoji
+        emoji.style.animationDuration = `${3 + index * 0.5}s`;
         
         emojisContainer.appendChild(emoji);
         
@@ -55,10 +69,23 @@ document.addEventListener('DOMContentLoaded', function() {
         this.style.transform = 'scale(1.2)';
         this.style.backgroundColor = '#ffcc80';
         
+        // Also animate emojis
+        const emojis = document.querySelectorAll('.emoji');
+        emojis.forEach(emoji => {
+            emoji.style.transform = 'scale(1.3)';
+            emoji.style.transition = 'transform 0.3s';
+        });
+        
         setTimeout(() => {
             this.style.animation = 'pulse 2s infinite ease-in-out';
             this.style.transform = 'scale(1)';
             this.style.backgroundColor = '';
+            
+            // Reset emojis
+            emojis.forEach(emoji => {
+                emoji.style.transform = '';
+                emoji.style.transition = '';
+            });
         }, 500);
         
         // Play sound on click too
@@ -82,6 +109,17 @@ document.addEventListener('DOMContentLoaded', function() {
             soundBtn.innerHTML = '<i class="fas fa-volume-up"></i> Playing Sound...';
             soundBtn.style.background = 'linear-gradient(to right, #ff9800, #ffb74d)';
             
+            // Make emojis bounce when sound plays
+            const emojis = document.querySelectorAll('.emoji');
+            emojis.forEach(emoji => {
+                emoji.style.animation = 'none';
+                emoji.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    emoji.style.animation = '';
+                    emoji.style.transform = '';
+                }, 300);
+            });
+            
             setTimeout(() => {
                 soundBtn.innerHTML = '<i class="fas fa-volume-up"></i> Hear Letter Sound';
                 soundBtn.style.background = 'linear-gradient(to right, #43a047, #66bb6a)';
@@ -91,16 +129,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Make emojis move on mouse move
+    // Make emojis move on mouse move (more subtle)
     document.addEventListener('mousemove', function(e) {
         const emojis = document.querySelectorAll('.emoji');
         const mouseX = e.clientX / window.innerWidth;
         const mouseY = e.clientY / window.innerHeight;
         
         emojis.forEach((emoji, index) => {
-            const speed = 0.5;
-            const x = (mouseX - 0.5) * speed * 100;
-            const y = (mouseY - 0.5) * speed * 100;
+            const speed = 0.3; // Reduced speed for subtle movement
+            const x = (mouseX - 0.5) * speed * 50;
+            const y = (mouseY - 0.5) * speed * 50;
             
             // Only apply subtle movement
             emoji.style.transform = `translate(${x}px, ${y}px)`;
@@ -109,16 +147,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Responsive adjustments on window resize
     window.addEventListener('resize', function() {
-        // Reposition emojis on resize
+        // Reposition emojis on resize to stay outside the letter
         const emojis = document.querySelectorAll('.emoji');
         animals.forEach((animal, index) => {
             const angle = (index / animals.length) * 2 * Math.PI;
-            const radius = Math.min(window.innerWidth, window.innerHeight) * 0.25;
+            const radius = Math.min(window.innerWidth, window.innerHeight) * 0.18;
             const centerX = 50;
             const centerY = 50;
             
-            const x = centerX + radius * Math.cos(angle) / window.innerWidth * 100;
-            const y = centerY + radius * Math.sin(angle) / window.innerHeight * 100;
+            // Position emojis further from center
+            const distanceMultiplier = 1.8;
+            const x = centerX + (radius * distanceMultiplier * Math.cos(angle)) / window.innerWidth * 100;
+            const y = centerY + (radius * distanceMultiplier * Math.sin(angle)) / window.innerHeight * 100;
             
             if (emojis[index]) {
                 emojis[index].style.left = `${x}%`;
@@ -127,13 +167,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add some random movement to emojis
+    // Add some random movement to emojis (outside the letter)
     setInterval(() => {
         const emojis = document.querySelectorAll('.emoji');
-        emojis.forEach(emoji => {
-            const randomX = Math.random() * 20 - 10;
-            const randomY = Math.random() * 20 - 10;
+        emojis.forEach((emoji, index) => {
+            const randomX = Math.random() * 25 - 12.5;
+            const randomY = Math.random() * 25 - 12.5;
+            
+            // Move emojis outward from center
+            const currentLeft = parseFloat(emoji.style.left || 50);
+            const currentTop = parseFloat(emoji.style.top || 50);
+            
+            // Calculate direction from center
+            const dx = currentLeft - 50;
+            const dy = currentTop - 50;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Push further out if too close
+            if (distance < 15) {
+                const angle = Math.atan2(dy, dx);
+                const newX = 50 + 20 * Math.cos(angle);
+                const newY = 50 + 20 * Math.sin(angle);
+                emoji.style.left = `${newX}%`;
+                emoji.style.top = `${newY}%`;
+            }
+            
             emoji.style.transform = `translate(${randomX}px, ${randomY}px)`;
         });
-    }, 3000);
+    }, 4000);
 });
